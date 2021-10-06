@@ -11,16 +11,35 @@ library(constants)
 
 ## Problem 1
 ```{r}
-trash_df = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx") %>%
+trash_df = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "Mr. Trash Wheel") %>%
   janitor::clean_names() %>%
   select(dumpster:homes_powered) %>%
   drop_na(dumpster) %>%
   mutate(sports_balls = round(sports_balls))
 
-particular_time_df = trash_df %>%
-  filter(year == 2018 | year == 2019) %>%
-  drop_na()
+eighten_prec = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>%
+  drop_na() %>%
+  mutate(year = 2018)
+  
+
+nineteen_prec = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2019 Precipitation", range = "A2:B14") %>%
+  drop_na() %>%
+  mutate(year = 2019)
+
+com_prec = bind_rows(eighten_prec, nineteen_prec) %>%
+  janitor::clean_names() %>%
+  mutate(month = month.name[as.numeric(month)]) 
+
+nineteen_dump = trash_df %>%
+  filter(year == 2019)
+
+sum(pull(eighten_prec, Total)) ###############
+median(pull(nineteen_dump, sports_balls)) ###############3
 ```
+
+The Mr. Trash Wheel data set contains `r ncol(trash_df)` columns and `r nrow(trash_df)` rows. The data sets has 14 variables which are `r names(trash_df)`. The median of sports balls in a dumpster in 2019 is `r median(pull(nine_dump, sports_balls))`.
+
+The combined 2018-2019 precipitation data set contains `r ncol(com_prec)` columns and `r nrow(com_prec)` rows. The data set has 3 variables which are `r names(com_prec)`. The total precipitation in 2018 is `r sum(pull(eighteen_prec, Total))`.
 
 ## Problem 2
 
