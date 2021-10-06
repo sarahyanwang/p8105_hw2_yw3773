@@ -44,84 +44,34 @@ The combined 2018-2019 precipitation data set contains `r ncol(com_prec)` column
 ## Problem 2
 
 ```{r}
-pol_month_df = read_csv("fivethirtyeight_datasets/pols-month.csv")
-
-snp_df = read_csv("fivethirtyeight_datasets/snp.csv")
-
-unemploy_df = read_csv("fivethirtyeight_datasets/unemployment.csv")
-```
-
-
-```{r}
-# load the data set
-
 pol_month_df = read_csv("fivethirtyeight_datasets/pols-month.csv") %>%
   separate(mon, into = c("year", "month", "day")) %>%
   janitor::clean_names() %>%
   mutate(month = month.name[as.numeric(month)]) %>%
   mutate(year = as.numeric(year)) %>%
-  pivot_longer(prez_gop:rep_dem, names_to = "president", values_to = "num") %>%
-  filter(president != "prez_dem" & president != "prez_gop") %>%
-  select(-day) %>%
+  mutate(president = ifelse(prez_dem == 0, "gop", "dem")) %>%
+  select(-day, -prez_gop, -prez_dem) %>%
   mutate(month = substring(month, 0, 3))
-  
-  
+
 snp_df = read_csv("fivethirtyeight_datasets/snp.csv") %>%
-  separate(date, into = c("year", "month", "day")) %>%
   janitor::clean_names() %>%
+  mutate(date, date = lubridate::mdy(date)) %>% 
+  separate(date, into = c("year", "month", "day")) %>% 
+  mutate(year = as.numeric(year)) %>% 
+  mutate(year = ifelse(year >= 2050, year - 100, year)) %>%
   mutate(month = month.name[as.numeric(month)]) %>% 
-  arrange("yeah", "month") %>%
-  mutate(year = as.numeric(year) + 2000) %>%
+  arrange(year, month) %>%
   mutate(month = substring(month, 0, 3)) %>%
   select(-day)
-  
-  
+ 
 unemploy_df = read_csv("fivethirtyeight_datasets/unemployment.csv") %>%
   pivot_longer(Jan:Dec, names_to = "month", values_to = "unem_percent") %>%
   janitor::clean_names() %>%
-  mutate(year = as.numeric(year)) 
- # arrange(year,month) 
+  mutate(year = as.numeric(year)) %>%
+  arrange(year,month) 
 
-```
-
-
-## first
-```{r}
-pol_month_df = read_csv("fivethirtyeight_datasets/pols-month.csv") %>%
-  janitor::clean_names() %>%
-  separate(mon, into = c("year", "month", "day")) %>%
-  mutate(month = month.name[as.numeric(month)]) %>%
-  pivot_longer(prez_gop:rep_dem, names_to = "president", values_to = "num") %>%
-  filter(president != "prez_dem" & president != "prez_gop") %>%
-  select(-day) %>%
-  mutate(month = substring(month, 0, 3)) %>%
-  arrange(year, month)
-```
-
-
-## Second
-```{r}
-snp_df = read_csv("fivethirtyeight_datasets/snp.csv") %>%
-  janitor::clean_names() %>%
-  separate(date, into = c("year", "month", "day")) %>%
-  mutate(month = month.name[as.numeric(month)]) %>%
-  select(-day) %>%
-  mutate(month = substring(month, 0, 3)) %>%
-  mutate(year = as.numeric(year)  + 2000) %>%
-  mutate(year = as.character(year)) %>%
-  arrange(year, month)
-```
-
-## Third
-```{r}
-unemploy_df = read_csv("fivethirtyeight_datasets/unemployment.csv") %>%
-  janitor::clean_names() %>%
-  pivot_longer(jan:dec, names_to = "month", values_to = "num") %>%
-  select(year, month, everything())
-
-
-merge_df = left_join(pol_month_df, snp_df, by = c("year", "month")) 
-
+merge_df = left_join(pol_month_df, snp_df, by = c("year", "month"))
+merge_df = left_join(merge_df, unemploy_df, by = c("year", "month"))
 ```
 
 
@@ -137,15 +87,18 @@ baby_df = read_csv("Popular_Baby_Names.csv") %>%
   mutate(ethnicity = replace(ethnicity, ethnicity == "black non hisp", "black non hispanic")) %>%
   unique()
 
+
 oliva_table = baby_df %>%
   filter(childs_first_name == "Olivia") %>%
   select(-count, -gender,-childs_first_name) %>%
   pivot_wider(names_from = year_of_birth, values_from = rank)
 
+
 male_table = baby_df %>%
   filter(gender == "male", rank == 1) %>%
   select(-count, -gender, -rank) %>%
   pivot_wider(names_from = year_of_birth, values_from = childs_first_name)
+
 
 plot_df = baby_df %>%
   filter(gender == "male", ethnicity == "white non hispanic", year_of_birth == 2016)
