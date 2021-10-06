@@ -123,10 +123,15 @@ oliva_table = baby_df %>%
   select(-count, -gender,-childs_first_name) %>%
   pivot_wider(names_from = year_of_birth, values_from = rank)
 
+male_table = baby_df %>%
+  filter(gender == "male", rank == 1) %>%
+  select(-count, -gender, -rank) %>%
+  pivot_wider(names_from = year_of_birth, values_from = childs_first_name)
 
+plot_df = baby_df %>%
+  filter(gender == "male", ethnicity == "white non hispanic", year_of_birth == 2016)
 
-
-
+ggplot(plot_df, aes(x = rank, y = count)) + geom_point()
 ```
 
 
