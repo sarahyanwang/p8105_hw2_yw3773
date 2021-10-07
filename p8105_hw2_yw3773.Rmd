@@ -67,12 +67,21 @@ unemploy_df = read_csv("fivethirtyeight_datasets/unemployment.csv") %>%
   janitor::clean_names() %>%
   mutate(year = as.numeric(year)) %>%
   mutate(month = month.name[match(month, month.abb)])
-  arrange(year,month) 
+  arrange(year, month) 
 
 merge_df = left_join(pol_month_df, snp_df, by = c("year", "month"))
 merge_df = left_join(merge_df, unemploy_df, by = c("year", "month"))
+
+range(pull(pol_month_df, year))
 ```
 
+The pol_month data set contains `r ncol(pol_month_df)` columns and `r nrow(com_prec)` rows from `r range(pull(pol_month_df, year))`. The data set has 8 variables which are `r names(pol_month_df)`.
+
+The snp data set contains `r ncol(snp_df)` columns and `r nrow(snp_df)` rows from `r range(pull(snp_df, year))`. The data set has 3 variables which are `r names(snp_df)`.
+
+The unemployment set contains `r ncol(unemploy_df)` columns and `r nrow(unemploy_df)` rows from `r range(pull(unemploy_df, year))`. The data set has 3 variables which are `r names(unemploy_df)`.
+
+The final combined data set contains `r ncol(merge_df)` columns and `r nrow(merge_df)` rows from `r range(pull(merge_df, year))`. The data set has 11 variables which are `r names(merge_df)`.
 
 # Problem 3
 
@@ -103,9 +112,7 @@ male_table = baby_df %>%
 plot_df = baby_df %>%
   filter(gender == "male", ethnicity == "white non hispanic", year_of_birth == 2016)
 
-ggplot(plot_df, aes(x = rank, y = count)) + geom_point(size = 0.5) + ggtitle("") + geom_rug(col = "red", alpha = 0.5, size=1.5)
-
-## add title 
+ggplot(plot_df, aes(x = rank, y = count)) + geom_point(size = 0.5) + ggtitle("The number of children with a name against the rank in popularity \n of that name for white non-hispanic children")
 ```
 
 
