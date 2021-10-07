@@ -1,9 +1,9 @@
 ---
 title: "p8105_hw2_yw3773"
-output: git_document
+output: github_document
 ---
 
-```{r setup, include=FALSE}
+```{r, message=FALSE}
 library(readxl)
 library(tidyverse)
 library(constants)
@@ -11,47 +11,54 @@ library(constants)
 
 ## Problem 1
 ```{r}
+# load the manipulate the trash data.
 trash_df = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "Mr. Trash Wheel") %>%
   janitor::clean_names() %>%
   select(dumpster:homes_powered) %>%
   drop_na(dumpster) %>%
   mutate(sports_balls = round(sports_balls))
 
-eighten_prec = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>%
+# load and manipulate the 2018 precipitation data.
+eighteen_prec = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>%
   drop_na() %>%
   mutate(year = 2018)
   
-
+# load and manipulate the 2019 precipitation data.
 nineteen_prec = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2019 Precipitation", range = "A2:B14") %>%
   drop_na() %>%
   mutate(year = 2019)
 
-com_prec = bind_rows(eighten_prec, nineteen_prec) %>%
+# combine the precipitation data of 2018 and 2019.
+com_prec = bind_rows(eighteen_prec, nineteen_prec) %>%
   janitor::clean_names() %>%
   mutate(month = month.name[as.numeric(month)]) 
 
+# additional data for answering the question
 nineteen_dump = trash_df %>%
   filter(year == 2019)
 
-sum(pull(eighten_prec, Total)) ###############
-median(pull(nineteen_dump, sports_balls)) ###############3
+
+
 ```
 
-The Mr. Trash Wheel data set contains `r ncol(trash_df)` columns and `r nrow(trash_df)` rows. The data sets has 14 variables which are `r names(trash_df)`. The median of sports balls in a dumpster in 2019 is `r median(pull(nine_dump, sports_balls))`.
+The Mr. Trash Wheel data set contains `r ncol(trash_df)` columns and `r nrow(trash_df)` rows. The data sets has 14 variables which are `r names(trash_df)`. The median of sports balls in a dumpster in 2019 is `r median(pull(nineteen_dump, sports_balls))`.
 
 The combined 2018-2019 precipitation data set contains `r ncol(com_prec)` columns and `r nrow(com_prec)` rows. The data set has 3 variables which are `r names(com_prec)`. The total precipitation in 2018 is `r sum(pull(eighteen_prec, Total))`.
+
 
 ## Problem 2
 
 ```{r}
+# load and manipulate the pol-month data.
 pol_month_df = read_csv("fivethirtyeight_datasets/pols-month.csv") %>%
-  separate(mon, into = c("year", "month", "day")) %>%
   janitor::clean_names() %>%
+  separate(mon, into = c("year", "month", "day")) %>%
   mutate(month = month.name[as.numeric(month)]) %>%
   mutate(year = as.numeric(year)) %>%
   mutate(president = ifelse(prez_dem == 0, "gop", "dem")) %>%
   select(-day, -prez_gop, -prez_dem) 
 
+# load and manipulate the snp data.
 snp_df = read_csv("fivethirtyeight_datasets/snp.csv") %>%
   janitor::clean_names() %>%
   mutate(date, date = lubridate::mdy(date)) %>% 
@@ -62,17 +69,17 @@ snp_df = read_csv("fivethirtyeight_datasets/snp.csv") %>%
   arrange(year, month) %>%
   select(-day)
  
+# load and manipulate the unemployment data.
 unemploy_df = read_csv("fivethirtyeight_datasets/unemployment.csv") %>%
   pivot_longer(Jan:Dec, names_to = "month", values_to = "unem_percent") %>%
   janitor::clean_names() %>%
   mutate(year = as.numeric(year)) %>%
-  mutate(month = month.name[match(month, month.abb)])
+  mutate(month = month.name[match(month, month.abb)]) %>%
   arrange(year, month) 
 
+# merge them together
 merge_df = left_join(pol_month_df, snp_df, by = c("year", "month"))
 merge_df = left_join(merge_df, unemploy_df, by = c("year", "month"))
-
-range(pull(pol_month_df, year))
 ```
 
 The pol_month data set contains `r ncol(pol_month_df)` columns and `r nrow(com_prec)` rows from `r range(pull(pol_month_df, year))`. The data set has 8 variables which are `r names(pol_month_df)`.
@@ -83,9 +90,11 @@ The unemployment set contains `r ncol(unemploy_df)` columns and `r nrow(unemploy
 
 The final combined data set contains `r ncol(merge_df)` columns and `r nrow(merge_df)` rows from `r range(pull(merge_df, year))`. The data set has 11 variables which are `r names(merge_df)`.
 
+
 # Problem 3
 
 ```{r}
+# load and manipulate the baby name data
 baby_df = read_csv("Popular_Baby_Names.csv") %>%
   janitor::clean_names() %>%
   mutate(gender = str_to_lower(gender)) %>%
@@ -96,19 +105,19 @@ baby_df = read_csv("Popular_Baby_Names.csv") %>%
   mutate(childs_first_name = str_to_title(childs_first_name)) %>%
   unique()
 
-
+# create the Olivia well-structured data.
 oliva_table = baby_df %>%
   filter(childs_first_name == "Olivia") %>%
   select(-count, -gender,-childs_first_name) %>%
   pivot_wider(names_from = year_of_birth, values_from = rank)
 
-
+# create the most popular male baby name well-structured data.
 male_table = baby_df %>%
   filter(gender == "male", rank == 1) %>%
   select(-count, -gender, -rank) %>%
   pivot_wider(names_from = year_of_birth, values_from = childs_first_name)
 
-
+# make the plot of "The number of children with a name against the rank in popularity \n of that name for white non-hispanic children".
 plot_df = baby_df %>%
   filter(gender == "male", ethnicity == "white non hispanic", year_of_birth == 2016)
 
