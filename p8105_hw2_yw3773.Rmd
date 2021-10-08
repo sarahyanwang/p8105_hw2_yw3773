@@ -12,19 +12,22 @@ library(constants)
 ## Problem 1
 ```{r, message=FALSE}
 # load the manipulate the trash data.
-trash_df = read_excel("Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Mr. Trash Wheel") %>%
+trash_df = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
+                      sheet = "Mr. Trash Wheel") %>%
   janitor::clean_names() %>%
   select(dumpster:homes_powered) %>%
   drop_na(dumpster) %>%
   mutate(sports_balls = round(sports_balls))
 
 # load and manipulate the 2018 precipitation data.
-eighteen_prec = read_excel("Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>%
+eighteen_prec = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
+                           sheet = "2018 Precipitation", range = "A2:B14") %>%
   drop_na() %>%
   mutate(year = 2018)
   
 # load and manipulate the 2019 precipitation data.
-nineteen_prec = read_excel("Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "2019 Precipitation", range = "A2:B14") %>%
+nineteen_prec = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
+                           sheet = "2019 Precipitation", range = "A2:B14") %>%
   drop_na() %>%
   mutate(year = 2019)
 
@@ -48,7 +51,7 @@ The combined 2018-2019 precipitation data set contains `r ncol(com_prec)` column
 
 ```{r, message=FALSE}
 # load and manipulate the pol-month data.
-pol_month_df = read_csv("fivethirtyeight_datasets/pols-month.csv") %>%
+pol_month_df = read_csv("./fivethirtyeight_datasets/pols-month.csv") %>%
   janitor::clean_names() %>%
   separate(mon, into = c("year", "month", "day")) %>%
   mutate(month = month.name[as.numeric(month)]) %>%
@@ -57,7 +60,7 @@ pol_month_df = read_csv("fivethirtyeight_datasets/pols-month.csv") %>%
   select(-day, -prez_gop, -prez_dem) 
 
 # load and manipulate the snp data.
-snp_df = read_csv("fivethirtyeight_datasets/snp.csv") %>%
+snp_df = read_csv("./fivethirtyeight_datasets/snp.csv") %>%
   janitor::clean_names() %>%
   mutate(date, date = lubridate::mdy(date)) %>% 
   separate(date, into = c("year", "month", "day")) %>% 
@@ -68,7 +71,7 @@ snp_df = read_csv("fivethirtyeight_datasets/snp.csv") %>%
   select(-day)
  
 # load and manipulate the unemployment data.
-unemploy_df = read_csv("fivethirtyeight_datasets/unemployment.csv") %>%
+unemploy_df = read_csv("./fivethirtyeight_datasets/unemployment.csv") %>%
   pivot_longer(Jan:Dec, names_to = "month", values_to = "unem_percent") %>%
   janitor::clean_names() %>%
   mutate(year = as.numeric(year)) %>%
@@ -93,13 +96,18 @@ The final combined data set contains `r ncol(merge_df)` columns and `r nrow(merg
 
 ```{r, message=FALSE}
 # load and manipulate the baby name data
-baby_df = read_csv("Popular_Baby_Names.csv") %>%
+baby_df = read_csv("./Popular_Baby_Names.csv") %>%
   janitor::clean_names() %>%
   mutate(gender = str_to_lower(gender)) %>%
   mutate(ethnicity = str_to_lower(ethnicity)) %>%
-  mutate(ethnicity = replace(ethnicity, ethnicity == "asian and pacific islander" | ethnicity == "asian and paci", "asian and pacific")) %>%
-  mutate(ethnicity = replace(ethnicity, ethnicity == "white non hisp", "white non hispanic")) %>%
-  mutate(ethnicity = replace(ethnicity, ethnicity == "black non hisp", "black non hispanic")) %>%
+  mutate(ethnicity = replace(ethnicity, 
+                             ethnicity == "asian and pacific islander" 
+                             | ethnicity == "asian and paci", 
+                             "asian and pacific")) %>%
+  mutate(ethnicity = replace(ethnicity, ethnicity == "white non hisp", 
+                             "white non hispanic")) %>%
+  mutate(ethnicity = replace(ethnicity, ethnicity == "black non hisp", 
+                             "black non hispanic")) %>%
   mutate(childs_first_name = str_to_title(childs_first_name)) %>%
   unique()
 
@@ -109,17 +117,25 @@ oliva_table = baby_df %>%
   select(-count, -gender,-childs_first_name) %>%
   pivot_wider(names_from = year_of_birth, values_from = rank)
 
+knitr::kable(oliva_table)
+
 # create the most popular male baby name well-structured data.
 male_table = baby_df %>%
   filter(gender == "male", rank == 1) %>%
   select(-count, -gender, -rank) %>%
   pivot_wider(names_from = year_of_birth, values_from = childs_first_name)
 
-# make the plot of "The number of children with a name against the rank in popularity \n of that name for white non-hispanic children".
-plot_df = baby_df %>%
-  filter(gender == "male", ethnicity == "white non hispanic", year_of_birth == 2016)
+knitr::kable(male_table)
 
-ggplot(plot_df, aes(x = rank, y = count)) + geom_point(size = 0.5) + ggtitle("The number of children with a name against the rank in popularity \n of that name for white non-hispanic children")
+# make the plot of "The number of children with a name against 
+# the rank in popularity of that name for white non-hispanic children".
+plot_df = baby_df %>%
+  filter(gender == "male", ethnicity == "white non hispanic", 
+         year_of_birth == 2016)
+
+ggplot(plot_df, aes(x = rank, y = count)) + geom_point(size = 0.5) + 
+  ggtitle("The number of children with a name against the rank in popularity \n 
+          of that name for white non-hispanic children")
 ```
 
 
