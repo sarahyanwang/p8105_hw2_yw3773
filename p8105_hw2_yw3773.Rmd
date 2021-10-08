@@ -40,8 +40,6 @@ com_prec = bind_rows(eighteen_prec, nineteen_prec) %>%
 nineteen_dump = trash_df %>%
   filter(year == 2019)
 
-median(pull(nineteen_dump, sports_balls))
-sum(pull(eighteen_prec, Total))
 ```
 
 The Mr. Trash Wheel data set contains `r ncol(trash_df)` columns and `r nrow(trash_df)` rows. The data sets has 14 variables which are `r names(trash_df)`. The median of sports balls in a dumpster in 2019 is `r median(pull(nineteen_dump, sports_balls))`.
