@@ -10,21 +10,21 @@ library(constants)
 ```
 
 ## Problem 1
-```{r}
+```{r, message=FALSE}
 # load the manipulate the trash data.
-trash_df = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "Mr. Trash Wheel") %>%
+trash_df = read_excel("Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Mr. Trash Wheel") %>%
   janitor::clean_names() %>%
   select(dumpster:homes_powered) %>%
   drop_na(dumpster) %>%
   mutate(sports_balls = round(sports_balls))
 
 # load and manipulate the 2018 precipitation data.
-eighteen_prec = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>%
+eighteen_prec = read_excel("Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>%
   drop_na() %>%
   mutate(year = 2018)
   
 # load and manipulate the 2019 precipitation data.
-nineteen_prec = read_excel("Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2019 Precipitation", range = "A2:B14") %>%
+nineteen_prec = read_excel("Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "2019 Precipitation", range = "A2:B14") %>%
   drop_na() %>%
   mutate(year = 2019)
 
@@ -37,8 +37,6 @@ com_prec = bind_rows(eighteen_prec, nineteen_prec) %>%
 nineteen_dump = trash_df %>%
   filter(year == 2019)
 
-
-
 ```
 
 The Mr. Trash Wheel data set contains `r ncol(trash_df)` columns and `r nrow(trash_df)` rows. The data sets has 14 variables which are `r names(trash_df)`. The median of sports balls in a dumpster in 2019 is `r median(pull(nineteen_dump, sports_balls))`.
@@ -48,7 +46,7 @@ The combined 2018-2019 precipitation data set contains `r ncol(com_prec)` column
 
 ## Problem 2
 
-```{r}
+```{r, message=FALSE}
 # load and manipulate the pol-month data.
 pol_month_df = read_csv("fivethirtyeight_datasets/pols-month.csv") %>%
   janitor::clean_names() %>%
@@ -93,7 +91,7 @@ The final combined data set contains `r ncol(merge_df)` columns and `r nrow(merg
 
 # Problem 3
 
-```{r}
+```{r, message=FALSE}
 # load and manipulate the baby name data
 baby_df = read_csv("Popular_Baby_Names.csv") %>%
   janitor::clean_names() %>%
